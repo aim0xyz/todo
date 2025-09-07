@@ -644,10 +644,23 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteConfirmModal">
+        <div class="modal">
+            <h3>Delete Task</h3>
+            <p style="color: white; margin-bottom: 24px; text-align: center;">Are you sure you want to delete this task?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="hideDeleteConfirmModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="confirmDelete()" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // State management
         let todos = [];
         let editingTodoId = null;
+        let deletingTodoId = null;
 
         // Load data from localStorage
         function loadData() {
@@ -713,17 +726,24 @@
             }
         }
 
-        // Delete todo
+        // Delete todo - show confirmation modal
         function deleteTodo(todoId) {
             console.log('deleteTodo called with ID:', todoId);
-            if (confirm('Are you sure you want to delete this task?')) {
-                console.log('Confirmed deletion for todo:', todoId);
+            deletingTodoId = todoId;
+            showDeleteConfirmModal();
+        }
+
+        // Actually delete the todo after confirmation
+        function confirmDelete() {
+            if (deletingTodoId) {
+                console.log('Confirmed deletion for todo:', deletingTodoId);
                 console.log('Todos before deletion:', todos.length);
-                todos = todos.filter(t => t.id !== todoId);
+                todos = todos.filter(t => t.id !== deletingTodoId);
                 console.log('Todos after deletion:', todos.length);
                 saveData();
                 renderTodos();
                 updateStats();
+                hideDeleteConfirmModal();
             }
         }
 
@@ -768,6 +788,18 @@
             modal.classList.remove('show');
             document.getElementById('modalTodoText').value = '';
             editingTodoId = null;
+        }
+
+        // Delete confirmation modal functions
+        function showDeleteConfirmModal() {
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.add('show');
+        }
+
+        function hideDeleteConfirmModal() {
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.remove('show');
+            deletingTodoId = null;
         }
 
         // Update statistics
@@ -827,7 +859,11 @@
         document.addEventListener('click', function(e) {
             // Handle modal overlay clicks (close modal)
             if (e.target.classList.contains('modal-overlay')) {
-                hideEditTodoModal();
+                if (e.target.id === 'editTodoModal') {
+                    hideEditTodoModal();
+                } else if (e.target.id === 'deleteConfirmModal') {
+                    hideDeleteConfirmModal();
+                }
             }
         });
 
@@ -836,12 +872,18 @@
             if (e.key === 'Enter') {
                 if (document.getElementById('editTodoModal').classList.contains('show')) {
                     saveEditedTodo();
+                } else if (document.getElementById('deleteConfirmModal').classList.contains('show')) {
+                    confirmDelete();
                 } else {
                     addTodo();
                 }
             }
-            if (e.key === 'Escape' && document.getElementById('editTodoModal').classList.contains('show')) {
-                hideEditTodoModal();
+            if (e.key === 'Escape') {
+                if (document.getElementById('editTodoModal').classList.contains('show')) {
+                    hideEditTodoModal();
+                } else if (document.getElementById('deleteConfirmModal').classList.contains('show')) {
+                    hideDeleteConfirmModal();
+                }
             }
         });
 
