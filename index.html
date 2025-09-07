@@ -224,7 +224,7 @@
             display: flex;
             justify-content: space-around;
             margin: 30px 0;
-            padding: 24px;
+            padding: 20px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -258,6 +258,13 @@
             color: rgba(255, 255, 255, 0.8);
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .stat-item:nth-child(2) .stat-number {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .todo-list {
@@ -621,6 +628,10 @@
                 <span class="stat-label">Total Tasks</span>
             </div>
             <div class="stat-item">
+                <span class="stat-number" id="activeTasks">0</span>
+                <span class="stat-label">Active</span>
+            </div>
+            <div class="stat-item">
                 <span class="stat-number" id="completedTasks">0</span>
                 <span class="stat-label">Completed</span>
             </div>
@@ -806,8 +817,10 @@
         function updateStats() {
             const totalTasks = todos.length;
             const completedTasks = todos.filter(t => t.completed).length;
+            const activeTasks = todos.filter(t => !t.completed).length;
             
             document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('activeTasks').textContent = activeTasks;
             document.getElementById('completedTasks').textContent = completedTasks;
         }
 
